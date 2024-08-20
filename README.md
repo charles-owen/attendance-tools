@@ -1,5 +1,8 @@
 # Attendance tools for use with ID card readers
 
+The id-scanner-convert program converts the output of commercial ID card readers to .csv files
+suitable for loading into D2L or other system. 
+
 To convert card reader files to a .csv file suitable for loading into D2L:
 
     python id-scanner-convert.py --d2l="result.csv" id-card-data.txt
