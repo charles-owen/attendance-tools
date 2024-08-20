@@ -20,4 +20,5 @@ data
 .venv*
 examples/*.csv
 *.egg-info
+!examples/CSE335.csv
 
