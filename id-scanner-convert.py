@@ -9,13 +9,14 @@ the names from the class list and MSU net ID
 Based on code provided by Sebnum Onsay as used in CSE 331
 
 Usage:
-    id-scanner-convert [--d2l=<d2l>] [--include-z] [--class-list=<class-list>...] <files>...
+    id-scanner-convert [--d2l=<d2l>] [--include-z] [--class-list=<class-list>...] [--absent=<absent-file>] <files>...
 
 Options:
     <files>                     Files to convert
     --d2l=<d2l>                 Create a .csv file suitable for uploading to D2L and other systems
     --include-z                 Include any Z PID values (default: false)
     --class-list=<class-list>   Specifies a class list ot load
+    --absent=<absent-list>      Absent students (requires --class-list)
 """
 
 import os
@@ -34,6 +35,8 @@ class IdScannerConverter(object):
         self._include_z = args['--include-z']
 
         self._class_lists = args['--class-list']
+
+        self._absent = args['--absent']
 
         # Will store the data from the input files
         self._data = []
@@ -81,6 +84,7 @@ class IdScannerConverter(object):
                             student = self._class_list_data[pid]
                             name = student['name']
                             self._attending.append((name, apid, pid, student['net_id']))
+                            student['present'] = True
                     else:
                         self._attending.append((name, apid))
             else:
@@ -98,10 +102,20 @@ class IdScannerConverter(object):
     def _write_d2l(self, filename):
         if len(self._class_lists) == 0:
             df = pd.DataFrame(self._attending, columns=["Name", "APID"])
+            df.to_csv(filename, index=False)
         else:
             df = pd.DataFrame(self._attending, columns=["Name", "APID", "PID", "NET_ID"])
+            df.to_csv(filename, index=False)
 
-        df.to_csv(filename, index=False)
+            if self._absent is not None:
+                absent = []
+                for pid in self._class_list_data:
+                    student = self._class_list_data[pid]
+                    if not student['present']:
+                        absent.append(( student['name'], pid, student['net_id']))
+
+                df = pd.DataFrame(absent, columns=["Name", "PID", "NET_ID"])
+                df.to_csv(self._absent, index=False)
 
         print(f"Successfully generated {filename}")
 
@@ -121,7 +135,7 @@ class IdScannerConverter(object):
             pid = str(data['Student_ID']).strip()
             name = str(data['Student_Name']).strip()
             net_id = str(data['MSUNet_ID']).strip()
-            self._class_list_data[pid] = {'name': name, 'net_id': net_id}
+            self._class_list_data[pid] = {'name': name, 'net_id': net_id, 'present': False}
 
 
 if __name__ == '__main__':
