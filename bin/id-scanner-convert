@@ -1,0 +1,6 @@
+#!/bin/bash
+
+source attendance-tools.sh
+source ${attendancetools}/.venv/bin/activate
+python3 ${attendancetools}/id-scanner-convert.py "$@"
+
