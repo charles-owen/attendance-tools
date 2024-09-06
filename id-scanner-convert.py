@@ -130,7 +130,7 @@ class IdScannerConverter(object):
             self._data.append(row[0])
 
     def _read_class_list(self, class_list):
-        df = pd.read_csv(class_list)
+        df = pd.read_csv(class_list, index_col=False)
         for row, data in df.iterrows():
             pid = str(data['Student_ID']).strip()
             name = str(data['Student_Name']).strip()
